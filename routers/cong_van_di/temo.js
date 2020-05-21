@@ -1,0 +1,10 @@
+sovb: req.body.sovb,
+      loaivb: req.body.loaivb,
+      ngaythang: req.body.ngaythang,
+      noidungvb: req.body.noidungvb,
+      nguoithuchien: req.body.nguoithuchien,
+      nguoinhan: req.body.nguoinhan,
+      tacgia: req.body.tacgia,
+      filepatch: req.body.filepatch,
+      filename: req.body.filename,
+  

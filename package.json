@@ -1,0 +1,30 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "api for \"uy ban mat tran to quoc quan binh thanh\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quangthonguyen/express-api-ubmttqqbt.git"
+  },
+  "author": "Quang Tho Nguyen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/quangthonguyen/express-api-ubmttqqbt/issues"
+  },
+  "homepage": "https://github.com/quangthonguyen/express-api-ubmttqqbt#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.7-alpha.3",
+    "mongoose": "^5.9.12",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  }
+}
