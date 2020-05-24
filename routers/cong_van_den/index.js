@@ -42,6 +42,24 @@ const CVD = require('../../model/cong_van_den');
 //     filename: 'Văn bản.PDF',
 //   });
 // }
+//notificationQlcv
+router.get('/notiCvd', async (req, res) => {
+  try {
+    const qlcv = await CVD.find({
+      notification: 3,
+    })
+      .countDocuments()
+      .exec();
+    const guestCvd = await CVD.find({
+      notification: 1,
+    })
+      .countDocuments()
+      .exec();
+    res.json({ qlcv, guestCvd });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 // admin get with limit and page
 router.get('/', async (req, res) => {
@@ -51,7 +69,7 @@ router.get('/', async (req, res) => {
   let ThoiHan;
   let Sort = { _id: 'desc' };
   if (req.query.trangthai) {
-    if (req.query.trangthai == 3) {
+    if (req.query.trangthai == 5) {
       ThoiHan = { thoihan: { $lt: new Date() } };
     } else {
       TrangThai = { ...TrangThai, trangthai: req.query.trangthai };
@@ -132,7 +150,7 @@ router.get('/qlcv', async (req, res) => {
   let ThoiHan;
   let Sort = { _id: 'desc' };
   if (req.query.trangthai) {
-    if (req.query.trangthai == 3) {
+    if (req.query.trangthai == 5) {
       ThoiHan = { $lt: new Date() };
     } else {
       TrangThai = { ...TrangThai, trangthai: req.query.trangthai };
@@ -210,7 +228,7 @@ router.get('/guest', async (req, res) => {
   let ThoiHan;
   let Sort = { _id: 'desc' };
   if (req.query.trangthai) {
-    if (req.query.trangthai == 3) {
+    if (req.query.trangthai == 5) {
       ThoiHan = { thoihan: { $lt: new Date() } };
     } else {
       TrangThai = { ...TrangThai, trangthai: req.query.trangthai };
@@ -298,8 +316,8 @@ router.post('/', async (req, res) => {
       filename: req.body.filename,
     });
     const newCvd = await cvd.save();
-
-    req.app.io.emit('news', newCvd);
+    // socket
+    req.app.io.emit('socketAddCvd', newCvd);
     res.status(201).json(newCvd);
   } catch (error) {
     console.log(error);
@@ -346,6 +364,9 @@ router.patch('/:id', getCvd, async (req, res) => {
   if (req.body.trangthai) {
     res.cvd.trangthai = req.body.trangthai;
   }
+  if (req.body.notification) {
+    res.cvd.notification = req.body.notification;
+  }
   if (req.body.filepatch) {
     res.cvd.filepatch = req.body.filepatch;
   }
@@ -356,9 +377,21 @@ router.patch('/:id', getCvd, async (req, res) => {
     res.cvd.thoihan = undefined;
   }
   try {
-    console.log(res.cvd);
-
     const updateCvd = await res.cvd.save();
+    req.app.io.emit('socketUpdateCvd', updateCvd);
+
+    if (req.body.trangthai === 2) {
+      req.app.io.emit('socketDeXuatHoanThanh', updateCvd);
+    }
+    if (req.body.trangthai === 3) {
+      req.app.io.emit('socketTuChoiDeXuat', updateCvd);
+    }
+    if (req.body.trangthai === 4) {
+      req.app.io.emit('socketHoanThanh', updateCvd);
+    }
+    // if (req.body.trangthai) {
+    //   req.app.io.emit('updateNotification', updateCvd);
+    // }
     res.json(updateCvd);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -368,8 +401,9 @@ router.patch('/:id', getCvd, async (req, res) => {
 // delete one
 router.delete('/:id', getCvd, async (req, res) => {
   try {
-    await res.cvd.remove();
+    const updateCvd = await res.cvd.remove();
     res.json({ message: 'Cvd deleted' });
+    req.app.io.emit('socketdeleteCvd', updateCvd);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
