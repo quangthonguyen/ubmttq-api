@@ -10,17 +10,17 @@ const fileUpload = require('express-fileupload');
 var cors = require('cors');
 
 // DATACONFIG
-mongoose.connect('mongodb://localhost:27017/ApiExpress', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-// mongoose.connect(
-//   'mongodb+srv://admin:admin@cluster0-xmui4.mongodb.net/ApiExpress',
-//   {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   }
-// );
+// mongoose.connect('mongodb://localhost:27017/ApiExpress', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
+mongoose.connect(
+  'mongodb+srv://admin:admin@cluster0-xmui4.mongodb.net/ApiExpress',
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
 
 const db = mongoose.connection;
 db.on('error', (error) => {
