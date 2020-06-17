@@ -16,7 +16,7 @@ router.post('/', (req, res) => {
     }
     console.log('Upload ', file.name, ' Successfull !');
     res.status(200).json({
-      filepatch: `https://${req.headers.host}/pdf/${ramdomFileName}`,
+      filepatch: `http://${req.headers.host}/pdf/${ramdomFileName}`,
       filename: file.name,
     });
   });

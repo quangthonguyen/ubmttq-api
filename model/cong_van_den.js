@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const cvdSchema = new mongoose.Schema(
   {
-    stt: {
-      type: Number,
-      require: true,
-    },
+    // stt: {
+    //   type: Number,
+    //   require: true,
+    // },
     sovb: {
       type: Number,
       require: true,
@@ -29,6 +30,18 @@ const cvdSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
+    // nguoithuchien: [
+    //   {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'users',
+    //     require: true,
+    //   },
+    // ],
+    // nguoithuchienchinh: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: 'users',
+    //   require: true,
+    // },
     nguoithuchien: {
       type: Array,
       require: true,
@@ -53,8 +66,12 @@ const cvdSchema = new mongoose.Schema(
       required: true,
     },
     notification: {
-      type: Number,
-      default: 1,
+      type: Boolean,
+      default: true,
+    },
+    notification2: {
+      type: Boolean,
+      default: false,
     },
   },
   {

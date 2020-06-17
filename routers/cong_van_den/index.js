@@ -3,6 +3,22 @@ const router = express.Router();
 const CVD = require('../../model/cong_van_den');
 
 // add test data
+// const loaiCv = [
+//   'Thông tư',
+//   'Chỉ thị',
+//   'Quyết định',
+//   'Quy định',
+//   'Kết luận',
+//   'Kế hoạch',
+//   'Báo cáo',
+//   'Thông báo',
+//   'Công văn',
+//   'Thông tin',
+//   'Nghi quyết',
+//   'Thư mời',
+//   'Chương trình',
+//   'Hướng dẫn',
+// ];
 // for (let index = 0; index < 50; index++) {
 //   const time = new Date();
 //   time.setDate(time.getDate() - 30 + index);
@@ -11,56 +27,67 @@ const CVD = require('../../model/cong_van_den');
 //   const rd = Math.floor(Math.random() * 8);
 //   const rdsovb = Math.floor(Math.random() * 500);
 //   CVD.create({
-//     stt: index,
-//     sovb: rdsovb,
+//     sovb: index,
 //     loaivb: rd,
-//     donvigui: `Ủy ban nhân dân ${index}`,
+//     donvigui: 'Ủy ban nhân đân Quận Bình Thạnh',
 //     ngayden: time,
-//     noidungvb: `Nội dung thực hiện ${index}`,
-//     noidungbutphe: `Nội dung bút phê ${index}`,
+//     noidungvb: `Nội dung về công văn đến: ${loaiCv[rd]} số ${index}`,
+//     noidungbutphe: `Nội dung bút phê của lãnh đạo về công văn đến: ${loaiCv[rd]} số ${index}`,
 //     nguoithuchien: [
 //       '5ec1fe8040e5c83b803b7249',
-
 //       '5ec1fe9f40e5c83b803b724a',
-
 //       '5ec1feb640e5c83b803b724b',
-
 //       '5ec1fed140e5c83b803b724c',
-
 //       '5ec1feed40e5c83b803b724d',
-
 //       '5ec1ff0140e5c83b803b724e',
-
 //       '5ec1ff4540e5c83b803b724f',
-
 //       '5ec1ff6340e5c83b803b7250',
 //     ],
 //     nguoithuchienchinh: '5ec1feb640e5c83b803b724b',
 //     thoihan: time2,
 //     trangthai: 0,
-//     filepatch: 'http://localhost:5000/pdf/1589772931193.pdf',
-//     filename: 'Văn bản.PDF',
+//     filepatch: 'http://localhost:5000/pdf/1592385631934.pdf',
+//     filename: 'Thông báo.pdf',
+//     notification: true,
+//     notification2: false,
 //   });
 // }
-//notificationQlcv
+//notificationCVD
 router.get('/notiCvd', async (req, res) => {
   try {
-    const qlcv = await CVD.find({
-      notification: 3,
+    const notiCvd = await CVD.find({
+      notification2: true,
     })
       .countDocuments()
       .exec();
-    const guestCvd = await CVD.find({
-      notification: 1,
-    })
-      .countDocuments()
-      .exec();
-    res.json({ qlcv, guestCvd });
+    // const time = new Date();
+    // time.setDate(time.getDate() - 2);
+    // const nhacnho = await CVD.find({
+    //   thoihan: { $lt: time },
+    //   trangthai: 2,
+    // })
+    //   .countDocuments()
+    //   .exec();
+    res.json({ notiCvd });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
-
+//guest notificationCVD
+router.get('/guestNotiCvd', async (req, res) => {
+  try {
+    const notiCvd = await CVD.find({
+      notification: true,
+      nguoithuchien: req.query.id,
+    })
+      .countDocuments()
+      .exec();
+    console.log('nguoithuchien', req.query.id);
+    res.json({ notiCvd });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 // admin get with limit and page
 router.get('/', async (req, res) => {
   const page = parseInt(req.query.page);
@@ -126,6 +153,8 @@ router.get('/', async (req, res) => {
       ...TrangThai,
     })
       .sort(Sort)
+      // .populate('nguoithuchienchinh', ['firstname', 'lastname'])
+      // .populate('nguoithuchien', ['firstname', 'lastname'])
       .limit(limit)
       .skip(startIndex)
       .exec();
@@ -301,7 +330,7 @@ router.post('/', async (req, res) => {
   try {
     console.log(req.body);
     const cvd = new CVD({
-      stt: req.body.stt,
+      // stt: req.body.stt,
       sovb: req.body.sovb,
       loaivb: req.body.loaivb,
       donvigui: req.body.donvigui,
@@ -366,6 +395,9 @@ router.patch('/:id', getCvd, async (req, res) => {
   }
   if (req.body.notification) {
     res.cvd.notification = req.body.notification;
+  }
+  if (req.body.notification2) {
+    res.cvd.notification2 = req.body.notification2;
   }
   if (req.body.filepatch) {
     res.cvd.filepatch = req.body.filepatch;

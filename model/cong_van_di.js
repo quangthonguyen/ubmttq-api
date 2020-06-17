@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const cvdiSchema = new mongoose.Schema(
   {
-    stt: {
-      type: Number,
-      require: true,
-    },
+    // stt: {
+    //   type: Number,
+    //   require: true,
+    // },
     sovb: {
       type: Number,
       require: true,
@@ -40,6 +40,10 @@ const cvdiSchema = new mongoose.Schema(
     filename: {
       type: String,
       required: true,
+    },
+    notification: {
+      type: Boolean,
+      default: true,
     },
   },
   {

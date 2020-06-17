@@ -3,57 +3,65 @@ const router = express.Router();
 const CVDI = require('../../model/cong_van_di');
 
 // add test data
+// const loaiCv = [
+//   'Thông tư',
+//   'Chỉ thị',
+//   'Quyết định',
+//   'Quy định',
+//   'Kết luận',
+//   'Kế hoạch',
+//   'Báo cáo',
+//   'Thông báo',
+//   'Công văn',
+//   'Thông tin',
+//   'Nghi quyết',
+//   'Thư mời',
+//   'Chương trình',
+//   'Hướng dẫn',
+// ];
 // for (let index = 1; index < 50; index++) {
 //   const time = new Date();
 //   time.setDate(time.getDate() - 30 + index);
 //   const rd = Math.floor(Math.random() * 13);
 //   const rdsovb = Math.floor(Math.random() * 500);
 //   CVDI.create({
-//     stt: index,
 //     sovb: index,
 //     loaivb: rd,
 //     ngaythang: time,
-//     noidungvb: `Nội dung văn bản đi ${index}`,
+//     noidungvb: `Nội dung văn bản đi: ${loaiCv[rd]} số ${index}`,
 //     nguoithuchien: [
 //       '5ec1fe8040e5c83b803b7249',
-
 //       '5ec1fe9f40e5c83b803b724a',
-
-//       '5ec1feb640e5c83b803b724b',
-
 //       '5ec1fed140e5c83b803b724c',
-
 //       '5ec1feed40e5c83b803b724d',
-
 //       '5ec1ff0140e5c83b803b724e',
-
 //       '5ec1ff4540e5c83b803b724f',
-
 //       '5ec1ff6340e5c83b803b7250',
 //     ],
-//     nguoinhan: [
-//       '5ec1fe8040e5c83b803b7249',
-
-//       '5ec1fe9f40e5c83b803b724a',
-
-//       '5ec1feb640e5c83b803b724b',
-
-//       '5ec1fed140e5c83b803b724c',
-
-//       '5ec1feed40e5c83b803b724d',
-
-//       '5ec1ff0140e5c83b803b724e',
-
-//       '5ec1ff4540e5c83b803b724f',
-
-//       '5ec1ff6340e5c83b803b7250',
-//     ],
+//     nguoinhan: ['5ec1feb640e5c83b803b724b'],
 //     tacgia: '5ec1fe9f40e5c83b803b724a',
-//     filepatch: 'http://localhost:5000/pdf/1589773047248.pdf',
-//     filename: 'Văn bản.PDF',
+//     filepatch: 'http://localhost:5000/pdf/1592389638643.pdf',
+//     filename: 'Thông báo.pdf',
+//     notification: true,
 //   });
 // }
 
+// guestNotiCvdi
+router.get('/guestNotiCvdi', async (req, res) => {
+  try {
+    const notiCvd = await CVDI.find({
+      notification: true,
+      nguoinhan: req.query.id,
+    })
+      .countDocuments()
+      .exec();
+    console.log('nguoinhan', req.query.id);
+    console.log('conut', notiCvd);
+    res.json({ notiCvd });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 // admin get with limit and page
 router.get('/', async (req, res) => {
   const page = parseInt(req.query.page);
@@ -199,7 +207,7 @@ router.post('/', async (req, res) => {
   try {
     console.log(req.body);
     const cvdi = new CVDI({
-      stt: req.body.stt,
+      // stt: req.body.stt,
       sovb: req.body.sovb,
       loaivb: req.body.loaivb,
       ngaythang: req.body.ngaythang,
@@ -211,7 +219,8 @@ router.post('/', async (req, res) => {
       filename: req.body.filename,
     });
     const newCvdi = await cvdi.save();
-    console.log({ newcvdi: newCvdi });
+    // socket
+    req.app.io.emit('socketAddCvdi', newCvdi);
     res.status(201).json(newCvdi);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -223,9 +232,9 @@ router.get('/:id', getCvdi, (req, res) => res.json(res.cvdi));
 
 // update one
 router.patch('/:id', getCvdi, async (req, res) => {
-  if (req.body.stt) {
-    res.cvdi.stt = req.body.stt;
-  }
+  // if (req.body.stt) {
+  //   res.cvdi.stt = req.body.stt;
+  // }
   if (req.body.sovb) {
     res.cvdi.sovb = req.body.sovb;
   }
@@ -253,10 +262,13 @@ router.patch('/:id', getCvdi, async (req, res) => {
   if (req.body.filename) {
     res.cvdi.filename = req.body.filename;
   }
+  if (req.body.notification) {
+    res.cvdi.notification = req.body.notification;
+  }
   try {
     console.log(res.cvdi);
-
     const updateCvdi = await res.cvdi.save();
+    req.app.io.emit('socketUpdateCvdi', updateCvdi);
     res.json(updateCvdi);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -266,8 +278,9 @@ router.patch('/:id', getCvdi, async (req, res) => {
 // delete one
 router.delete('/:id', getCvdi, async (req, res) => {
   try {
-    await res.cvdi.remove();
+    const updateCvdi = await res.cvdi.remove();
     res.json({ message: 'Cvdi deleted' });
+    req.app.io.emit('socketdeleteCvdi', updateCvdi);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
